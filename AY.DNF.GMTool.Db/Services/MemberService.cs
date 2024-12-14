@@ -1,6 +1,9 @@
-﻿using AY.DNF.GMTool.Db.DbModels.GMTool;
+﻿using AY.DNF.GMTool.Db.DbModels.d_taiwan;
+using AY.DNF.GMTool.Db.DbModels.GMTool;
 using AY.DNF.GMTool.Db.DbModels.taiwan_cain;
 using AY.DNF.GMTool.Db.DbModels.taiwan_cain_2nd;
+using AY.DNF.GMTool.Db.DbModels.taiwan_game_event;
+using AY.DNF.GMTool.Db.DbModels.taiwan_login;
 using AY.DNF.GMTool.Db.Models;
 using System;
 using System.Collections.Generic;
@@ -218,6 +221,84 @@ where delete_flag!=1 ";
         {
             var sql = @$"set charset latin1;update charac_info set charac_name=concat('del_',charac_name) where delete_flag=1";
             return await DbFrameworkScope.TaiwanCain.Ado.ExecuteCommandAsync(sql) > 0;
+        }
+
+        /// <summary>
+        /// 在线信息查询
+        /// </summary>
+        /// <param name="acName"></param>
+        /// <param name="chName"></param>
+        /// <param name="isOnline"></param>
+        /// <returns></returns>
+        public async Task<List<OnlineMemberModel>> OnlineMember(string acName, string chName, bool isOnline)
+        {
+            #region 在线信息
+
+            // 在线账号
+            var loginAccount3Query = DbFrameworkScope.TaiwanLogin.Queryable<LoginAccount3>();
+            if (isOnline)
+                loginAccount3Query = loginAccount3Query.Where(t => t.LoginStatus == 1);
+
+            // 在线账号
+            var loginAccount3 = await loginAccount3Query.ToListAsync();
+            var loginAccount3Ids = loginAccount3.Select(t => t.MID).ToList();
+
+            // 在线角色
+            var onLineCharac = await DbFrameworkScope.TaiwanGameEvent.Queryable<Event1306AccountReward>().ToListAsync();
+
+            #endregion
+
+            #region 账号角色详情
+
+            var accQuery = DbFrameworkScope.DTaiwan.Queryable<Accounts>();
+            if (!string.IsNullOrWhiteSpace(acName))
+                accQuery = accQuery.Where(t => t.Accountname.Contains(acName));
+
+            if (isOnline)
+                accQuery = accQuery.Where(t => loginAccount3Ids.Contains(t.UID));
+
+            var accounts = await accQuery.ToListAsync();
+            var accountIds = accounts.Select(t => t.UID).ToList();
+            var accountIdsStr = accountIds.Aggregate(string.Empty, (x, y) => x += $"{y},").TrimEnd(',');
+
+            var sql = @$"
+Set Charset latin1;
+select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob
+from charac_info
+where 1=1
+";
+
+            if (!string.IsNullOrWhiteSpace(accountIdsStr))
+                sql += $" and m_id in ({accountIdsStr}) ";
+
+            if (!string.IsNullOrWhiteSpace(chName))
+                sql += $" and charac_name like '%{chName}%' ";
+
+            var infos = await DbFrameworkScope.TaiwanCain.SqlQueryable<CharacInfo>(sql).ToListAsync();
+
+            var result = infos.Select(t => new OnlineMemberModel
+            {
+                UID = t.MId,
+                AccountName = accounts.First(x => x.UID == t.MId).Accountname,
+                LoginIP = loginAccount3.First(x => x.MID == t.MId).LoginIP,
+                CharacNo = t.CharacNo,
+                CharacName = t.CharacName,
+                Lev = t.Lev,
+                Job = t.Job,
+                GrowType = t.GrowType,
+                DeleteFlag = t.DeleteFlag
+            }).ToList();
+
+
+            var characNos = result.Select(t => t.CharacNo).ToList();
+
+            var exInfos = await DbFrameworkScope.TaiwanCain.Queryable<CharacStat>().Where(t => characNos.Contains(t.CharacNo)).ToListAsync();
+
+            result.ForEach(t => t.LastLoginDate = exInfos.First(x => x.CharacNo == t.CharacNo).LastPlayTime);
+
+            #endregion
+
+            return result;
         }
     }
 }

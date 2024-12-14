@@ -17,6 +17,9 @@ namespace AY.DNF.GMTool.Db
         static SqlSugarScope? _taiwanCain2nd;
         //static SqlSugarScope? _localDb;
         static SqlSugarScope? _gmToolDb;
+        static SqlSugarScope? _taiwanLogin;
+        static SqlSugarScope? _taiwanGameEvent;
+
         /// <summary>
         /// 用户信息库
         /// </summary>
@@ -37,6 +40,16 @@ namespace AY.DNF.GMTool.Db
         /// 邮件 背包
         /// </summary>
         public static SqlSugarScope TaiwanCain2nd => _taiwanCain2nd!;
+
+        /// <summary>
+        /// 在线
+        /// </summary>
+        public static SqlSugarScope TaiwanLogin => _taiwanLogin!;
+
+        /// <summary>
+        /// 事件
+        /// </summary>
+        public static SqlSugarScope TaiwanGameEvent => _taiwanGameEvent!;
 
         /// <summary>
         /// GM工具数据库
@@ -86,6 +99,22 @@ namespace AY.DNF.GMTool.Db
                     DbType = DbType.MySql,
                     ConfigId = "taiwan_cain_2nd",
                     ConnectionString = $"{baseConn}Database=taiwan_cain_2nd;",
+                    IsAutoCloseConnection = true,
+                });
+
+                _taiwanLogin = new SqlSugarScope(new ConnectionConfig
+                {
+                    DbType = DbType.MySql,
+                    ConfigId = "taiwan_login",
+                    ConnectionString = $"{baseConn}Database=taiwan_login;",
+                    IsAutoCloseConnection = true,
+                });
+
+                _taiwanLogin = new SqlSugarScope(new ConnectionConfig
+                {
+                    DbType = DbType.MySql,
+                    ConfigId = "taiwan_game_event",
+                    ConnectionString = $"{baseConn}Database=taiwan_game_event;",
                     IsAutoCloseConnection = true,
                 });
 
