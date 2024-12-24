@@ -583,6 +583,11 @@ namespace AY.DNF.GMTool.ViewModels
             var jobs = await new GMToolService().GetJobs(int.Parse(jobArr[0]));
             var baseJobId = int.Parse(jobArr[0]);
             var growJobId = int.Parse(jobArr[1]);
+            if (jobs.Count <= 0)
+            {
+                Growl.Warning("请先解析Script.pvf初始化数据");
+                return;
+            }
             var job = jobs.First(t => t.JobId == baseJobId);
             // 基础职业
             CurMemberInfo.Job = job.JobName;

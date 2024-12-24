@@ -59,7 +59,7 @@
             HorizontalAlignment="Left"
             Source="/Assets/Images/Logo.png" />
 
-        <StackPanel
+        <StackPanel Grid.Row="0"
             Grid.Column="1"
             HorizontalAlignment="Left"
             VerticalAlignment="Center">
@@ -75,7 +75,7 @@
                 Text="{Binding Version}" />
         </StackPanel>
 
-        <Border
+        <Border Grid.Row="0"
             Grid.Column="1"
             Width="200"
             Margin="20,5"
@@ -99,7 +99,7 @@
             </StackPanel>
         </Border>
 
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
+        <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
             <GroupBox Header="数据库设置">
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                     <TextBlock Text="IP地址" />
@@ -284,16 +284,16 @@
             </GroupBox>
         </StackPanel>
 
-        <DataGrid
-            Name="gridMember"
-            Grid.Row="2"
-            AutoGenerateColumns="False"
-            Background="Transparent"
-            CanUserAddRows="False"
-            CanUserDeleteRows="False"
-            HorizontalGridLinesBrush="#33000000"
-            ItemsSource="{Binding MemberInfos}"
-            VerticalGridLinesBrush="#33000000">
+        <DataGrid Grid.Column="0"
+                  Name="gridMember"
+                  Grid.Row="2"
+                  AutoGenerateColumns="False"
+                  Background="Transparent"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HorizontalGridLinesBrush="#33000000"
+                  ItemsSource="{Binding MemberInfos}"
+                  VerticalGridLinesBrush="#33000000">
 
             <hc:Interaction.Triggers>
                 <hc:EventTrigger EventName="SelectionChanged">

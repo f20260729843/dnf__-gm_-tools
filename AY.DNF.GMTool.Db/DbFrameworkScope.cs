@@ -70,6 +70,14 @@ namespace AY.DNF.GMTool.Db
             try
             {
                 var baseConn = $"Server={server};Port={port};Uid={userName};Pwd={pwd};Charset=utf8;AllowZeroDateTime=True;ConvertZeroDateTime=True;";
+                var baseMySql= new SqlSugarScope(new ConnectionConfig
+                {
+                    DbType = DbType.MySql,
+                    ConfigId = "base",
+                    ConnectionString = $"{baseConn}",
+                    IsAutoCloseConnection = true,
+                });
+
                 _dTaiwan = new SqlSugarScope(new ConnectionConfig
                 {
                     DbType = DbType.MySql,
@@ -123,11 +131,18 @@ namespace AY.DNF.GMTool.Db
                     Directory.CreateDirectory(sqliteDb);
                 sqliteDb = Path.Combine(sqliteDb, "dnf.db");
 
+                //_gmToolDb = new SqlSugarScope(new ConnectionConfig
+                //{
+                //    DbType = DbType.Sqlite,
+                //    ConfigId = "gm_tool",
+                //    ConnectionString = $"DataSource={sqliteDb}",
+                //    IsAutoCloseConnection = true,
+                //});
                 _gmToolDb = new SqlSugarScope(new ConnectionConfig
                 {
-                    DbType = DbType.Sqlite,
+                    DbType = DbType.MySql,
                     ConfigId = "gm_tool",
-                    ConnectionString = $"DataSource={sqliteDb}",
+                    ConnectionString = $"{baseConn}Database=gm_tool;",
                     IsAutoCloseConnection = true,
                 });
 
@@ -136,6 +151,12 @@ namespace AY.DNF.GMTool.Db
                 _taiwanBillinig.Ado.CheckConnection();
                 _taiwanCain2nd.Ado.CheckConnection();
 
+                var dbList = baseMySql.DbMaintenance.GetDataBaseList();
+                if(!dbList.Exists(t=>t.Equals("gm_tool")))
+                {
+                    var b= _gmToolDb.DbMaintenance.CreateDatabase("gm_tool",null);
+                    if (!b) return false;                    
+                }
                 if (!_gmToolDb.DbMaintenance.IsAnyTable("Equipments"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Equipments));
                 if (!_gmToolDb.DbMaintenance.IsAnyTable("Stackables"))
@@ -146,7 +167,7 @@ namespace AY.DNF.GMTool.Db
                     _gmToolDb.CodeFirst.InitTables(typeof(JobTree));
                 if (!_gmToolDb.DbMaintenance.IsAnyTable("Quests"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Quests));
-
+                
                 _gmToolDb.Ado.CheckConnection();
 
                 CheckCharacInfoVIPColumn();
