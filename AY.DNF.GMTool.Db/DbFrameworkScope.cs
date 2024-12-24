@@ -126,23 +126,16 @@ namespace AY.DNF.GMTool.Db
                     IsAutoCloseConnection = true,
                 });
 
-                var sqliteDb = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalData");
-                if (!Directory.Exists(sqliteDb))
-                    Directory.CreateDirectory(sqliteDb);
-                sqliteDb = Path.Combine(sqliteDb, "dnf.db");
+                //var sqliteDb = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalData");
+                //if (!Directory.Exists(sqliteDb))
+                //    Directory.CreateDirectory(sqliteDb);
+                //sqliteDb = Path.Combine(sqliteDb, "dnf.db");
 
-                //_gmToolDb = new SqlSugarScope(new ConnectionConfig
-                //{
-                //    DbType = DbType.Sqlite,
-                //    ConfigId = "gm_tool",
-                //    ConnectionString = $"DataSource={sqliteDb}",
-                //    IsAutoCloseConnection = true,
-                //});
                 _gmToolDb = new SqlSugarScope(new ConnectionConfig
                 {
                     DbType = DbType.MySql,
                     ConfigId = "gm_tool",
-                    ConnectionString = $"{baseConn}Database=gm_tool;",
+                    ConnectionString = $"{baseConn}Database=gm_tool;AllowLoadLocalInfile=true;",
                     IsAutoCloseConnection = true,
                 });
 
@@ -157,15 +150,15 @@ namespace AY.DNF.GMTool.Db
                     var b= _gmToolDb.DbMaintenance.CreateDatabase("gm_tool",null);
                     if (!b) return false;                    
                 }
-                if (!_gmToolDb.DbMaintenance.IsAnyTable("Equipments"))
+                if (!_gmToolDb.DbMaintenance.IsAnyTable("equipments"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Equipments));
-                if (!_gmToolDb.DbMaintenance.IsAnyTable("Stackables"))
+                if (!_gmToolDb.DbMaintenance.IsAnyTable("stackables"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Stackables));
-                if (!_gmToolDb.DbMaintenance.IsAnyTable("Dungeons"))
+                if (!_gmToolDb.DbMaintenance.IsAnyTable("dungeons"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Dungeons));
-                if (!_gmToolDb.DbMaintenance.IsAnyTable("JobTree"))
+                if (!_gmToolDb.DbMaintenance.IsAnyTable("job_tree"))
                     _gmToolDb.CodeFirst.InitTables(typeof(JobTree));
-                if (!_gmToolDb.DbMaintenance.IsAnyTable("Quests"))
+                if (!_gmToolDb.DbMaintenance.IsAnyTable("quests"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Quests));
                 
                 _gmToolDb.Ado.CheckConnection();

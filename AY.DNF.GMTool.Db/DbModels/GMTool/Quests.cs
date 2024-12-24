@@ -3,7 +3,7 @@ using System;
 
 namespace AY.DNF.GMTool.Db.DbModels.GMTool
 {
-    [SugarTable("Quests", TableDescription = "PVF解析的任务表")]
+    [SugarTable("quests", TableDescription = "PVF解析的任务表")]
     public class Quests
     {
         public string Id { get; set; } = Guid.NewGuid().ToString("n");

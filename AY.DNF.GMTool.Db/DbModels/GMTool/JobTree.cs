@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AY.DNF.GMTool.Db.DbModels.GMTool
 {
-    [SugarTable("JobTree", TableDescription = "解析PVF得到的职业树")]
+    [SugarTable("job_tree", TableDescription = "解析PVF得到的职业树")]
     public class JobTree
     {
         [SugarColumn(IsPrimaryKey = true)]

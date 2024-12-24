@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AY.DNF.GMTool.Db.DbModels.GMTool
 {
-    [SugarTable("Equipments", TableDescription = "pvf解析的装备表")]
+    [SugarTable("equipments", TableDescription = "pvf解析的装备表")]
     public class Equipments
     {
         [SugarColumn(IsPrimaryKey = true)]

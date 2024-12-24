@@ -48,7 +48,7 @@ namespace AY.DNF.GMTool.Db.Services
         /// <param name="items"></param>
         public async void WriteJobData(List<JobTree> items)
         {
-            await DbFrameworkScope.GMToolDb.Ado.ExecuteCommandAsync("delete from jobtree");
+            await DbFrameworkScope.GMToolDb.Ado.ExecuteCommandAsync("delete from job_tree");
             await DbFrameworkScope.GMToolDb.Fastest<JobTree>().PageSize(5000).BulkCopyAsync(items);
         }
 
