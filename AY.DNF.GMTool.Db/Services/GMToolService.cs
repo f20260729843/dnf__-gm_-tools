@@ -19,7 +19,15 @@ namespace AY.DNF.GMTool.Db.Services
         public async void WriteEquipData(List<Equipments> items)
         {
             await DbFrameworkScope.GMToolDb.Ado.ExecuteCommandAsync("delete from equipments");
-            await DbFrameworkScope.GMToolDb.Fastest<Equipments>().PageSize(5000).BulkCopyAsync(items);
+            //await DbFrameworkScope.GMToolDb.Fastest<Equipments>().SetCharacterSet("utf8").PageSize(5000).BulkCopyAsync(items);
+            //DbFrameworkScope.GMToolDb.Fastest<Equipments>().SetCharacterSet("utf8").BulkCopy(items);
+            var counts = items.Count / 500;
+            for (var i = 0; i <= counts; i++)
+            {
+                var data = items.Skip(i * 500).Take(500).ToList();
+                if (data.Count <= 0) return;
+                DbFrameworkScope.GMToolDb.Fastest<Equipments>().SetCharacterSet("utf8").BulkCopy(data);
+            }
         }
 
         /// <summary>
@@ -29,7 +37,14 @@ namespace AY.DNF.GMTool.Db.Services
         public async void WriteDungeonData(List<Dungeons> items)
         {
             await DbFrameworkScope.GMToolDb.Ado.ExecuteCommandAsync("delete from dungeons");
-            await DbFrameworkScope.GMToolDb.Fastest<Dungeons>().PageSize(5000).BulkCopyAsync(items);
+            //await DbFrameworkScope.GMToolDb.Fastest<Dungeons>().SetCharacterSet("utf8").PageSize(5000).BulkCopyAsync(items);
+            var counts = items.Count / 500;
+            for (var i = 0; i <= counts; i++)
+            {
+                var data = items.Skip(i * 500).Take(500).ToList();
+                if (data.Count <= 0) return;
+                DbFrameworkScope.GMToolDb.Fastest<Dungeons>().SetCharacterSet("utf8").BulkCopy(data);
+            }
         }
 
         /// <summary>
@@ -39,7 +54,14 @@ namespace AY.DNF.GMTool.Db.Services
         public async void WriteStackableData(List<Stackables> items)
         {
             await DbFrameworkScope.GMToolDb.Ado.ExecuteCommandAsync("delete from stackables");
-            await DbFrameworkScope.GMToolDb.Fastest<Stackables>().PageSize(5000).BulkCopyAsync(items);
+            //await DbFrameworkScope.GMToolDb.Fastest<Stackables>().SetCharacterSet("utf8").PageSize(5000).BulkCopyAsync(items);
+            var counts = items.Count / 500;
+            for (var i = 0; i <= counts; i++)
+            {
+                var data = items.Skip(i * 500).Take(500).ToList();
+                if (data.Count <= 0) return;
+                DbFrameworkScope.GMToolDb.Fastest<Stackables>().SetCharacterSet("utf8").BulkCopy(data);
+            }
         }
 
         /// <summary>
@@ -49,7 +71,14 @@ namespace AY.DNF.GMTool.Db.Services
         public async void WriteJobData(List<JobTree> items)
         {
             await DbFrameworkScope.GMToolDb.Ado.ExecuteCommandAsync("delete from job_tree");
-            await DbFrameworkScope.GMToolDb.Fastest<JobTree>().PageSize(5000).BulkCopyAsync(items);
+            //await DbFrameworkScope.GMToolDb.Fastest<JobTree>().PageSize(5000).BulkCopyAsync(items);
+            var counts = items.Count / 500;
+            for (var i = 0; i <= counts; i++)
+            {
+                var data = items.Skip(i * 500).Take(500).ToList();
+                if (data.Count <= 0) return;
+                DbFrameworkScope.GMToolDb.Fastest<JobTree>().SetCharacterSet("utf8").BulkCopy(data);
+            }
         }
 
         /// <summary>
@@ -59,7 +88,14 @@ namespace AY.DNF.GMTool.Db.Services
         public async void WriteQuestData(List<Quests> items)
         {
             await DbFrameworkScope.GMToolDb.Ado.ExecuteCommandAsync("delete from quests");
-            await DbFrameworkScope.GMToolDb.Fastest<Quests>().PageSize(5000).BulkCopyAsync(items);
+            //await DbFrameworkScope.GMToolDb.Fastest<Quests>().SetCharacterSet("utf8").PageSize(5000).BulkCopyAsync(items);
+            var counts = items.Count / 500;
+            for (var i = 0; i <= counts; i++)
+            {
+                var data = items.Skip(i * 500).Take(500).ToList();
+                if (data.Count <= 0) return;
+                DbFrameworkScope.GMToolDb.Fastest<Quests>().SetCharacterSet("utf8").BulkCopy(data);
+            }
         }
 
         /// <summary>
