@@ -24,6 +24,7 @@
                 hc:InfoElement.Title="账号"
                 hc:InfoElement.TitlePlacement="Left"
                 DockPanel.Dock="Left"
+                Text="{Binding AccountName}"
                 Style="{StaticResource TextBoxExtend}" />
             <TextBox
                 Width="200"
@@ -31,16 +32,19 @@
                 hc:InfoElement.Title="角色"
                 hc:InfoElement.TitlePlacement="Left"
                 DockPanel.Dock="Left"
+                 Text="{Binding CharacName}"
                 Style="{StaticResource TextBoxExtend}" />
             <CheckBox
                 Margin="5,0,0,0"
                 hc:InfoElement.TitlePlacement="Left"
                 Content="只看在线"
+                IsChecked="{Binding IsOnLine}"
                 DockPanel.Dock="Left" />
 
             <Button
                 Width="80"
                 Content="查询"
+                Command ="{Binding SearchCommand}"
                 DockPanel.Dock="Right" />
         </DockPanel>
 
@@ -54,29 +58,42 @@
 
             <DataGrid.Columns>
                 <DataGridTextColumn
-                    Binding="{Binding Id}"
+                     Binding="{Binding DeleteFlagStr}"
+                     Width="80"
+                     Header="删除标记"
+                     IsReadOnly="True" />
+                <DataGridTextColumn
+                    Binding="{Binding UID}"
+                    Width="80"
                     Header="Id"
+                    Visibility="Hidden"
                     IsReadOnly="True" />
                 <DataGridTextColumn
-                    Binding="{Binding Account}"
+                    Binding="{Binding AccountName}"
+                    Width="120"
                     Header="账号"
                     IsReadOnly="True" />
                 <DataGridTextColumn
                     Binding="{Binding CharacName}"
+                    Width="200"
                     Header="角色"
                     IsReadOnly="True" />
                 <DataGridTextColumn
-                    Binding="{Binding Job}"
+                    Binding="{Binding JobName}"
+                    Width="120"
                     Header="职业"
                     IsReadOnly="True" />
                 <DataGridTextColumn
-                    Binding="{Binding Lev}"
-                    Header="等级"
+                    Binding="{Binding GrowTypeNames}"
+                    Width="250"
+                    Header="觉醒"
                     IsReadOnly="True" />
                 <DataGridTextColumn
-                    Binding="{Binding DeleteFlag}"
-                    Header="删除标记"
+                    Binding="{Binding Lev}"
+                    Width="80"
+                    Header="等级"
                     IsReadOnly="True" />
+               
             </DataGrid.Columns>
         </DataGrid>
 

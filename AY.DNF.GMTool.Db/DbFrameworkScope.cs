@@ -118,7 +118,7 @@ namespace AY.DNF.GMTool.Db
                     IsAutoCloseConnection = true,
                 });
 
-                _taiwanLogin = new SqlSugarScope(new ConnectionConfig
+                _taiwanGameEvent = new SqlSugarScope(new ConnectionConfig
                 {
                     DbType = DbType.MySql,
                     ConfigId = "taiwan_game_event",

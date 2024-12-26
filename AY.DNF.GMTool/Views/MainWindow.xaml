@@ -377,6 +377,10 @@
                     Command="{Binding GMToolCommand}"
                     CommandParameter="Pvf"
                     Content="Script.Pvf处理" />
+                <RadioButton
+                    Command="{Binding GMToolCommand}"
+                    CommandParameter="Online"
+                    Content="角色管理" />
             </StackPanel>
             <Border
                 Grid.Row="1"

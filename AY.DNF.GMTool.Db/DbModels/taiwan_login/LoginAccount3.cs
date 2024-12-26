@@ -11,7 +11,7 @@ namespace AY.DNF.GMTool.Db.DbModels.taiwan_login
         [SugarColumn(ColumnName = "m_id", ColumnDataType = "int", IsPrimaryKey = true)]
         public int MID { get; set; }
 
-        [SugarColumn(ColumnName = "m_channe_no", ColumnDataType = "int")]
+        [SugarColumn(ColumnName = "m_channel_no", ColumnDataType = "int")]
         public int MChannelNo { get; set; }
 
         [SugarColumn(ColumnName = "login_status", ColumnDataType = "tinyint")]

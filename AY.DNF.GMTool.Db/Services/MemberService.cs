@@ -22,13 +22,16 @@ namespace AY.DNF.GMTool.Db.Services
         /// </summary>
         /// <param name="characNo"></param>
         /// <returns></returns>
-        public async Task<DetailMemberInfoModel?> GetDetailMemberInfo(int characNo)
+        public async Task<DetailMemberInfoModel?> GetDetailMemberInfo(int characNo,bool selectAll=false)
         {
             var sql = @$"
 Set Charset latin1;
-select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob
+select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob,delete_flag DeleteFlag
 from charac_info 
-where delete_flag!=1 ";
+where 1=1 ";
+            if (!selectAll){
+                sql = "and delete_flag!=1";
+            }
             var infos = await DbFrameworkScope.TaiwanCain.SqlQueryable<CharacInfo>(sql).ToListAsync();
             var info = infos.FirstOrDefault(t => t.CharacNo == characNo);
             if (info == null) return null;
@@ -242,9 +245,11 @@ where delete_flag!=1 ";
             // 在线账号
             var loginAccount3 = await loginAccount3Query.ToListAsync();
             var loginAccount3Ids = loginAccount3.Select(t => t.MID).ToList();
+            if (!loginAccount3.Any()) return new List<OnlineMemberModel>();
 
             // 在线角色
             var onLineCharac = await DbFrameworkScope.TaiwanGameEvent.Queryable<Event1306AccountReward>().ToListAsync();
+            if(!onLineCharac.Any()) return new List<OnlineMemberModel>();
 
             #endregion
 
@@ -263,7 +268,7 @@ where delete_flag!=1 ";
 
             var sql = @$"
 Set Charset latin1;
-select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob
+select m_id MId, charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob,delete_flag DeleteFlag
 from charac_info
 where 1=1
 ";

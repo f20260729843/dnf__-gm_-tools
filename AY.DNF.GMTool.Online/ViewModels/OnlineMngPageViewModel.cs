@@ -1,6 +1,7 @@
 ﻿using AY.DNF.GMTool.Db.Models;
 using AY.DNF.GMTool.Db.Services;
 using AY.DNF.GMTool.Online.Models;
+using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
@@ -35,7 +36,7 @@ namespace AY.DNF.GMTool.Online.ViewModels
         }
 
         private bool _isOnLine;
-        /// <summary>
+        ///1 <summary>
         /// 是否只看在线
         /// </summary>
         public bool IsOnLine
@@ -77,6 +78,11 @@ namespace AY.DNF.GMTool.Online.ViewModels
         async void LoadJobs()
         {
             var jobs = await new GMToolService().GetJobs();
+            if (!jobs.Any())
+            {
+                Growl.Warning("请先使用Script.pvf进行数据初始化");
+                return;
+            }
             _jobTree = jobs.Where(t => t.ParentId == "root").Select(t => new JobTreeModel
             {
                 Id = t.Id,
@@ -106,6 +112,7 @@ namespace AY.DNF.GMTool.Online.ViewModels
             jxNames = string.Empty;
 
             var job = _jobTree.First(t => t.JobId == baseJob);
+            jobName = job.JobName!;
             jxCount = growJob / 16;
             var jx = growJob % 16;
             var jxJob = job.GrowJobs.FirstOrDefault(t => t.JobId == jx);
@@ -121,7 +128,7 @@ namespace AY.DNF.GMTool.Online.ViewModels
                 else
                 {
                     if (jxJob.GrowJobs == null || jxJob.GrowJobs.Count <= 0)
-                        jxNames = jxJob.JobName;
+                        jxNames = jxJob!.JobName!;
                     else
                     {
                         var jc = jxCount;
@@ -137,17 +144,34 @@ namespace AY.DNF.GMTool.Online.ViewModels
         /// </summary>
         async void DoSearchCommand()
         {
-            OnlineList.Clear();
+            OnlineList.Clear();        
 
             var infos = await new MemberService().OnlineMember(AccountName, CharacName, IsOnLine);
 
-            infos.ForEach(t =>
+            if (infos==null || !infos.Any()) return; 
+
+            for (var i = 0; i < infos.Count; i++)
             {
+                var t = infos[i];
+
+                var detailInfo = await new MemberService().GetDetailMemberInfo(t.CharacNo,true);
+                if (detailInfo == null)
+                {
+                    Growl.Warning($"未找到角色编号【{t.CharacNo}】的角色");
+                    continue;
+                }
+
+                var jobArr = detailInfo.Job!.Split("_", StringSplitOptions.RemoveEmptyEntries);
+                var baseJobId = int.Parse(jobArr[0]);
+                var growJobId = int.Parse(jobArr[1]);
+
+                var job = _jobTree.First(t => t.JobId == baseJobId);
+
                 JobInfoDetail(t.Job, t.GrowType, out var jn, out var jc, out var jxn);
 
                 t.JobName = jn;
                 t.GrowTypeNames = jxn;
-            });
+            }
 
             OnlineList.AddRange(infos);
         }

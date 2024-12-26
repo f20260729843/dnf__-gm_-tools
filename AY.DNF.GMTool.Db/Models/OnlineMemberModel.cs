@@ -59,5 +59,7 @@ namespace AY.DNF.GMTool.Db.Models
         /// 删除标志
         /// </summary>
         public long DeleteFlag { get; set; }
+
+        public string DeleteFlagStr => DeleteFlag == 0 ? "正常" : "已删除";
     }
 }
