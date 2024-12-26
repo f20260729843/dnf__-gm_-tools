@@ -5,6 +5,7 @@ using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Windows.Input;
 
 namespace AY.DNF.GMTool.Online.ViewModels
@@ -53,6 +54,13 @@ namespace AY.DNF.GMTool.Online.ViewModels
             set { SetProperty(ref _onlineList, value); }
         }
 
+
+        private OnlineMemberModel _selectedCharac;
+        public OnlineMemberModel SelectedCharac
+        {
+            get { return _selectedCharac; }
+            set { SetProperty(ref _selectedCharac, value); }
+        }
         #endregion
 
         #region 事件
@@ -63,6 +71,10 @@ namespace AY.DNF.GMTool.Online.ViewModels
         /// </summary>
         public ICommand SearchCommand => _searchCommand ??= new DelegateCommand(DoSearchCommand);
 
+        ICommand? _deleteCharacCommand;
+        public ICommand DeleteCharacCommand => _deleteCharacCommand ??= new DelegateCommand(DoDeleteCharacCommand);
+        ICommand? _resumeCharacCommand;
+        public ICommand ResumeCharacCommand => _resumeCharacCommand ??= new DelegateCommand(DoResumeCharacCommand);
         #endregion
 
         public OnlineMngPageViewModel()
@@ -174,6 +186,23 @@ namespace AY.DNF.GMTool.Online.ViewModels
             }
 
             OnlineList.AddRange(infos);
+        }
+
+        async void DoDeleteCharacCommand()
+        {
+            if (SelectedCharac == null) return;
+            if (SelectedCharac.DeleteFlag == 1) return;
+            var b = await new MemberService().DeleteCharac(SelectedCharac.CharacNo);
+            Growl.Info($"删除{(b?"成功":"失败")}");
+            DoSearchCommand();
+        }
+        async void DoResumeCharacCommand()
+        {
+            if (SelectedCharac == null) return;
+            if (SelectedCharac.DeleteFlag == 0) return;
+            var b = await new MemberService().ResumeCharac(SelectedCharac.CharacNo);
+            Growl.Info($"恢复{(b ? "成功" : "失败")}");
+            DoSearchCommand();
         }
     }
 }

@@ -305,5 +305,31 @@ where 1=1
 
             return result;
         }
+
+        /// <summary>
+        /// 删除角色
+        /// </summary>
+        /// <param name="charaNo"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteCharac(int charaNo)
+        {
+            return await DbFrameworkScope.TaiwanCain.Updateable<CharacInfo>()
+                .SetColumns(t => t.DeleteFlag == 1)
+                .Where(t => t.CharacNo == charaNo)
+                .ExecuteCommandAsync() > 0;
+        }
+
+        /// <summary>
+        /// 恢复角色
+        /// </summary>
+        /// <param name="charaNo"></param>
+        /// <returns></returns>
+        public async Task<bool> ResumeCharac(int charaNo)
+        {
+            return await DbFrameworkScope.TaiwanCain.Updateable<CharacInfo>()
+                .SetColumns(t => t.DeleteFlag == 0)
+                .Where(t => t.CharacNo == charaNo)
+                .ExecuteCommandAsync() > 0;
+        }
     }
 }
