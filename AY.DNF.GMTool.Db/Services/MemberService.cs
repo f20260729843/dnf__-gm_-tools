@@ -1,4 +1,5 @@
-﻿using AY.DNF.GMTool.Db.DbModels.d_taiwan;
+﻿using AY.DNF.GMTool.Common;
+using AY.DNF.GMTool.Db.DbModels.d_taiwan;
 using AY.DNF.GMTool.Db.DbModels.GMTool;
 using AY.DNF.GMTool.Db.DbModels.taiwan_cain;
 using AY.DNF.GMTool.Db.DbModels.taiwan_cain_2nd;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -326,6 +328,7 @@ from charac_info";
             sql += $" where charac_no in ({condition})";
 
             var infos = await DbFrameworkScope.TaiwanCain.SqlQueryable<CharacInfo>(sql).ToListAsync();
+
             if (infos.Count <= 0) return null;
 
             var result= new List<DetailMemberInfoModel>();
@@ -352,6 +355,9 @@ from charac_info";
         /// <returns></returns>
         public async Task<bool> DeleteCharac(long mid,int charaNo)
         {
+            
+            //
+
             var cv = await DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == mid).FirstAsync();
 
             return await DbFrameworkScope.TaiwanCain.Updateable<CharacInfo>()
@@ -367,6 +373,97 @@ from charac_info";
         /// <returns></returns>
         public async Task<bool> ResumeCharac(long mid,int charaNo)
         {
+            var startIndex = 0;
+            var bytes = new byte[148];
+            bytes[startIndex] = (byte)charaNo;
+            startIndex += 4;
+
+            // 角色
+            var sql = @$"
+Set Charset latin1;
+select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob,delete_flag DeleteFlag
+from charac_info
+where charac_no='{charaNo}' ";
+            var characs = await DbFrameworkScope.TaiwanCain.SqlQueryable<CharacInfo>(sql).ToListAsync();
+            var charac = characs.First();
+
+            var name = Encoding.UTF8.GetBytes(charac.CharacName);
+            Array.Copy(name, 0, bytes, startIndex, name.Length);
+            startIndex += 20;
+
+            bytes[startIndex] = (byte)charac.Job;
+            startIndex += 1;
+
+            bytes[startIndex] = (byte)charac.GrowType;
+            startIndex += 1;
+
+            bytes[startIndex] = (byte)charac.Lev;
+            startIndex += 1;
+
+            // inentory_capacity
+            bytes[startIndex] = 0;
+            startIndex++;
+            bytes[startIndex] = 16;
+            startIndex++;
+
+            startIndex += 11;
+
+            // 时装
+            var items = await DbFrameworkScope.TaiwanCain2nd.Queryable<UserItems>()
+                        .Where(t => t.CharacNo == charaNo)
+                        .OrderBy(t => t.Slot)
+                        .ToListAsync();
+            var dic = new List<long>();
+            if (items != null && items.Any())
+            {
+                for (var i = 0; i <= 9; i++)
+                {
+                    var tmp = items.FirstOrDefault(t => t.Slot == i);
+                    if (tmp == null)
+                        dic.Add( 0);
+                    else
+                        dic.Add(tmp.ItId);
+                }
+            }
+            dic.ForEach(t =>
+            {
+                var tmp = BitConverter.GetBytes(t);
+                tmp.Reverse();
+                Array.Copy(tmp, 0, bytes, startIndex, tmp.Length);
+                startIndex += 8;
+            });
+
+            // 武器
+            var invetory = await DbFrameworkScope.TaiwanCain2nd.Queryable<Inventory>().Where(t => t.CharacNo == charaNo).FirstAsync();
+            var eBytes = invetory.Equipslot.ToList();
+            var weaponBytes = eBytes.Skip(2).Take(4).ToArray();
+
+            Array.Copy(weaponBytes, 0, bytes, startIndex, weaponBytes.Length);
+
+            // charac_view
+            var views = await DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == mid).FirstAsync();
+            var blob = views.Info;
+            blob = blob.ToList().GetRange(4, blob.Length - 4).ToArray();
+            blob = SharpZipHelper.SharpZipLibDecompress(blob.ToArray());
+            var count = blob.Length / 8;
+            for(var i = 0; i < count; i++)
+            {
+                var tmp = blob.Skip(i * 148).Take(148).ToList();
+                if (tmp.Take(4).ToArray()[0] != 0) continue;
+
+                Array.Copy(bytes, 0, blob, i * 148, bytes.Length);
+                break;
+            }            
+            var data = SharpZipHelper.SharpZipLibCompress(blob);
+            var info = new byte[data.Length + 4];
+            info[0] = 208;
+            info[1] = 20;
+            info[2] = 0;
+            info[3] = 0;
+            Array.Copy(data,0,info,4, data.Length);
+            views.Info = info;
+
+            await DbFrameworkScope.TaiwanCain.Updateable<CharacView>(views).ExecuteCommandAsync();
             return await DbFrameworkScope.TaiwanCain.Updateable<CharacInfo>()
                 .SetColumns(t => t.DeleteFlag == 0)
                 .Where(t => t.CharacNo == charaNo)

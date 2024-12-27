@@ -13,8 +13,8 @@ namespace AY.DNF.GMTool.Test
     {
         public static void CharacView()
         {
-            DbFrameworkScope.Init("192.168.200.131","game", "uu5!^%jg",3306);
-            var view = DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == 18000001).First();
+            //DbFrameworkScope.Init("192.168.200.131","game", "uu5!^%jg",3306);
+            var view = DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == 17).First();
 
             // info流
             var blob = view.Info.ToList();
@@ -56,6 +56,20 @@ namespace AY.DNF.GMTool.Test
 
                 bytes = bytes.Skip(2).ToArray();
 
+                var unknow = bytes.Take(11).ToArray();
+                bytes=bytes.Skip(11).ToArray();
+
+                // 时装等
+                var count = bytes.Count() / 8;
+                var sjList = new List<long>();
+                for (var i = 0; i < 11; i++)
+                {
+                    var tmp = bytes.Skip(i * 8).Take(8).ToArray();
+                    tmp.Reverse();
+                    sjList.Add(BitConverter.ToInt64(tmp));
+                }
+
+                bytes=bytes.Skip(8*count).ToArray();
             });
         }
     }

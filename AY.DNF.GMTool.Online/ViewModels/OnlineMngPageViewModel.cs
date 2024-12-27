@@ -195,6 +195,9 @@ namespace AY.DNF.GMTool.Online.ViewModels
         {
             if (SelectedCharac == null) return;
             if (SelectedCharac.DeleteFlag == 1) return;
+            // 处理charac_view
+
+            // 标记位
             var b = await new MemberService().DeleteCharac(SelectedCharac.UID, SelectedCharac.CharacNo);
             Growl.Info($"删除{(b ? "成功" : "失败")}");
             DoSearchCommand();

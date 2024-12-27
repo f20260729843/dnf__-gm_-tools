@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace AY.DNF.GMTool.Test
     {
         public static void InventoryInfo()
         {
-            var inventory = DbFrameworkScope.TaiwanCain2nd.Queryable<Inventory>().Where(t => t.CharacNo == 12).First();
+            var inventory = DbFrameworkScope.TaiwanCain2nd.Queryable<Inventory>().Where(t => t.CharacNo == 32).First();
 
             // 背包blob 流
             // inventory.Inventory_
@@ -72,7 +73,18 @@ namespace AY.DNF.GMTool.Test
 
 
         #endregion
+
+        public static void EquipSlot()
+        {
+            var bs = (byte)32;
+
+            var inventory = DbFrameworkScope.TaiwanCain2nd.Queryable<Inventory>().Where(t => t.CharacNo == 32).First();
+            var blob = inventory.Equipslot.ToList();
+            blob = blob.GetRange(4, blob.Count - 4);
+            blob = SharpZipHelper.SharpZipLibDecompress(blob.ToArray()).ToList();
+        }
     }
+
 
     internal class DnfItemSlot
     {

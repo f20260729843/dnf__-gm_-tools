@@ -12,16 +12,17 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 //TiaoTiaoNLogger.FastNoDatabaseInit();
 
-//DbFrameworkScope.Init("192.168.200.131", "game", "uu5!^%jg", 3306);
+DbFrameworkScope.Init("192.168.200.131", "game", "uu5!^%jg", 3306);
 
 //CharacTest.CharacStat();
 //CharacTest.CharacPvf();
 
 //InventoryTest.InventoryInfo();
+//InventoryTest.EquipSlot();
 //QuestTest.QuestInfo();
 
 CharaViewInfoTest.CharacView();
 
-NpkTest.Read();
+//NpkTest.Read();
 
 Console.ReadLine();
