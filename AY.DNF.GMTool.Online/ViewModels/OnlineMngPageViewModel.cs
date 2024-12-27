@@ -156,17 +156,20 @@ namespace AY.DNF.GMTool.Online.ViewModels
         /// </summary>
         async void DoSearchCommand()
         {
-            OnlineList.Clear();        
+            OnlineList.Clear();
 
             var infos = await new MemberService().OnlineMember(AccountName, CharacName, IsOnLine);
 
-            if (infos==null || !infos.Any()) return; 
+            if (infos == null || !infos.Any()) return;
+            var characNos = infos.Select(t => t.CharacNo).ToList();
+
+            var characInfos = await new MemberService().GetDetailMembersInfo(characNos);
 
             for (var i = 0; i < infos.Count; i++)
             {
                 var t = infos[i];
 
-                var detailInfo = await new MemberService().GetDetailMemberInfo(t.CharacNo,true);
+                var detailInfo = await new MemberService().GetDetailMemberInfo(t.CharacNo, true);
                 if (detailInfo == null)
                 {
                     Growl.Warning($"未找到角色编号【{t.CharacNo}】的角色");
@@ -192,15 +195,15 @@ namespace AY.DNF.GMTool.Online.ViewModels
         {
             if (SelectedCharac == null) return;
             if (SelectedCharac.DeleteFlag == 1) return;
-            var b = await new MemberService().DeleteCharac(SelectedCharac.CharacNo);
-            Growl.Info($"删除{(b?"成功":"失败")}");
+            var b = await new MemberService().DeleteCharac(SelectedCharac.UID, SelectedCharac.CharacNo);
+            Growl.Info($"删除{(b ? "成功" : "失败")}");
             DoSearchCommand();
         }
         async void DoResumeCharacCommand()
         {
             if (SelectedCharac == null) return;
             if (SelectedCharac.DeleteFlag == 0) return;
-            var b = await new MemberService().ResumeCharac(SelectedCharac.CharacNo);
+            var b = await new MemberService().ResumeCharac(SelectedCharac.UID, SelectedCharac.CharacNo);
             Growl.Info($"恢复{(b ? "成功" : "失败")}");
             DoSearchCommand();
         }

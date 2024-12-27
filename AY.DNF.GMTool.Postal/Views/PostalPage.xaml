@@ -165,7 +165,6 @@
                     <TextBox
                         Width="150"
                         Margin="3"
-                        IsEnabled="False"
                         Text="{Binding SelectedItemId, Mode=TwoWay}" />
                 </StackPanel>
                 <StackPanel

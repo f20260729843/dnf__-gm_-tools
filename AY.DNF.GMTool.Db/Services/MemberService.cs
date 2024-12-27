@@ -5,9 +5,13 @@ using AY.DNF.GMTool.Db.DbModels.taiwan_cain_2nd;
 using AY.DNF.GMTool.Db.DbModels.taiwan_game_event;
 using AY.DNF.GMTool.Db.DbModels.taiwan_login;
 using AY.DNF.GMTool.Db.Models;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Security.Policy;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AY.DNF.GMTool.Db.Services
@@ -30,7 +34,7 @@ select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expe
 from charac_info 
 where 1=1 ";
             if (!selectAll){
-                sql = "and delete_flag!=1";
+                sql += "and delete_flag!=1";
             }
             var infos = await DbFrameworkScope.TaiwanCain.SqlQueryable<CharacInfo>(sql).ToListAsync();
             var info = infos.FirstOrDefault(t => t.CharacNo == characNo);
@@ -307,12 +311,49 @@ where 1=1
         }
 
         /// <summary>
+        /// 批量获取游戏角色
+        /// </summary>
+        /// <param name="characNos"></param>
+        /// <returns></returns>
+        public async Task<List<DetailMemberInfoModel>?> GetDetailMembersInfo(List<int> characNos)
+        {
+            var sql = @$"
+Set Charset latin1;
+select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob,delete_flag DeleteFlag
+from charac_info";
+
+            var condition = characNos.Aggregate(string.Empty, (x, y) => x += y + ",").TrimEnd(',');
+            sql += $" where charac_no in ({condition})";
+
+            var infos = await DbFrameworkScope.TaiwanCain.SqlQueryable<CharacInfo>(sql).ToListAsync();
+            if (infos.Count <= 0) return null;
+
+            var result= new List<DetailMemberInfoModel>();
+            foreach (var item in infos)
+            {
+                var di = new DetailMemberInfoModel
+                {
+                    CharacNo = item.CharacNo,
+                    CharacName = item.CharacName,
+                    Level = item.Lev,                 
+                    Job = $"{item.Job}_{item.GrowType}",
+                    ExpertJob = item.ExpertJob,
+                    VIP = string.IsNullOrWhiteSpace(item.VIP) ? "VIP" : "非VIP"
+                };
+                result.Add(di);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// 删除角色
         /// </summary>
         /// <param name="charaNo"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteCharac(int charaNo)
+        public async Task<bool> DeleteCharac(long mid,int charaNo)
         {
+            var cv = await DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == mid).FirstAsync();
+
             return await DbFrameworkScope.TaiwanCain.Updateable<CharacInfo>()
                 .SetColumns(t => t.DeleteFlag == 1)
                 .Where(t => t.CharacNo == charaNo)
@@ -324,7 +365,7 @@ where 1=1
         /// </summary>
         /// <param name="charaNo"></param>
         /// <returns></returns>
-        public async Task<bool> ResumeCharac(int charaNo)
+        public async Task<bool> ResumeCharac(long mid,int charaNo)
         {
             return await DbFrameworkScope.TaiwanCain.Updateable<CharacInfo>()
                 .SetColumns(t => t.DeleteFlag == 0)

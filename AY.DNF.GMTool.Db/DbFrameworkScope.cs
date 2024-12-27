@@ -90,7 +90,7 @@ namespace AY.DNF.GMTool.Db
                 {
                     DbType = DbType.MySql,
                     ConfigId = "taiwan_cain",
-                    ConnectionString = $"{baseConn}Database=taiwan_cain;",
+                    ConnectionString = $"{baseConn}Database=taiwan_cain;CharSet=latin1;",
                     IsAutoCloseConnection = true,
                 });
 

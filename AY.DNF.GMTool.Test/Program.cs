@@ -20,6 +20,8 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 //InventoryTest.InventoryInfo();
 //QuestTest.QuestInfo();
 
+CharaViewInfoTest.CharacView();
+
 NpkTest.Read();
 
 Console.ReadLine();

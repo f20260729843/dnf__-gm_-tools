@@ -68,13 +68,13 @@ namespace AY.DNF.GMTool.Db.DbModels.taiwan_cain
 		/// 
 		/// </summary>
 		[SugarColumn(ColumnName = "maxHP" , ColumnDataType = "smallint", DefaultValue = "0", ColumnDescription = "")]
-		public short MaxHP { get; set; }
+		public int MaxHP { get; set; }
 
 		/// <summary>
 		/// 
 		/// </summary>
 		[SugarColumn(ColumnName = "maxMP" , ColumnDataType = "smallint", DefaultValue = "0", ColumnDescription = "")]
-		public short MaxMP { get; set; }
+		public int MaxMP { get; set; }
 
 		/// <summary>
 		/// 
