@@ -355,8 +355,33 @@ from charac_info";
         /// <returns></returns>
         public async Task<bool> DeleteCharac(long mid,int charaNo)
         {
+            // charac_view
+            var views = await DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == mid).FirstAsync();
+            var blob = views.Info;
+            blob = blob.ToList().GetRange(4, blob.Length - 4).ToArray();
+            blob = SharpZipHelper.SharpZipLibDecompress(blob.ToArray());
             
-            //
+            var count = blob.Length / 148;
+            for(var i = 0; i < count; i++)
+            {
+                var tmp = blob.Skip(i * 148).Take(148).ToList();
+                var no = tmp.Take(4).ToArray()[0];
+                if (no != charaNo) continue;
+
+                var zeroData = new byte[148];
+                Array.Copy(zeroData, 0, blob, i * 148,148);
+                break;
+            }
+            var data = SharpZipHelper.SharpZipLibCompress(blob);
+            var info = new byte[data.Length + 4];
+            info[0] = 208;
+            info[1] = 20;
+            info[2] = 0;
+            info[3] = 0;
+            Array.Copy(data, 0, info, 4, data.Length);
+            views.Info = info;
+
+            await DbFrameworkScope.TaiwanCain.Updateable<CharacView>(views).ExecuteCommandAsync();
 
             var cv = await DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == mid).FirstAsync();
 
@@ -445,7 +470,7 @@ where charac_no='{charaNo}' ";
             var blob = views.Info;
             blob = blob.ToList().GetRange(4, blob.Length - 4).ToArray();
             blob = SharpZipHelper.SharpZipLibDecompress(blob.ToArray());
-            var count = blob.Length / 8;
+            var count = blob.Length / 148;
             for(var i = 0; i < count; i++)
             {
                 var tmp = blob.Skip(i * 148).Take(148).ToList();
