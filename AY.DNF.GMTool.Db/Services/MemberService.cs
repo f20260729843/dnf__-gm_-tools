@@ -28,14 +28,15 @@ namespace AY.DNF.GMTool.Db.Services
         /// </summary>
         /// <param name="characNo"></param>
         /// <returns></returns>
-        public async Task<DetailMemberInfoModel?> GetDetailMemberInfo(int characNo,bool selectAll=false)
+        public async Task<DetailMemberInfoModel?> GetDetailMemberInfo(int characNo, bool selectAll = false)
         {
             var sql = @$"
 Set Charset latin1;
 select charac_no CharacNo,charac_name CharacName,job,lev,grow_type GrowType,expert_job ExpertJob,delete_flag DeleteFlag
 from charac_info 
 where 1=1 ";
-            if (!selectAll){
+            if (!selectAll)
+            {
                 sql += "and delete_flag!=1";
             }
             var infos = await DbFrameworkScope.TaiwanCain.SqlQueryable<CharacInfo>(sql).ToListAsync();
@@ -255,7 +256,7 @@ where 1=1 ";
 
             // 在线角色
             var onLineCharac = await DbFrameworkScope.TaiwanGameEvent.Queryable<Event1306AccountReward>().ToListAsync();
-            if(!onLineCharac.Any()) return new List<OnlineMemberModel>();
+            if (!onLineCharac.Any()) return new List<OnlineMemberModel>();
 
             #endregion
 
@@ -331,14 +332,14 @@ from charac_info";
 
             if (infos.Count <= 0) return null;
 
-            var result= new List<DetailMemberInfoModel>();
+            var result = new List<DetailMemberInfoModel>();
             foreach (var item in infos)
             {
                 var di = new DetailMemberInfoModel
                 {
                     CharacNo = item.CharacNo,
                     CharacName = item.CharacName,
-                    Level = item.Lev,                 
+                    Level = item.Lev,
                     Job = $"{item.Job}_{item.GrowType}",
                     ExpertJob = item.ExpertJob,
                     VIP = string.IsNullOrWhiteSpace(item.VIP) ? "VIP" : "非VIP"
@@ -353,25 +354,47 @@ from charac_info";
         /// </summary>
         /// <param name="charaNo"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteCharac(long mid,int charaNo)
+        public async Task<bool> DeleteCharac(long mid, int charaNo)
         {
             // charac_view
             var views = await DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == mid).FirstAsync();
             var blob = views.Info;
             blob = blob.ToList().GetRange(4, blob.Length - 4).ToArray();
             blob = SharpZipHelper.SharpZipLibDecompress(blob.ToArray());
-            
-            var count = blob.Length / 148;
-            for(var i = 0; i < count; i++)
-            {
-                var tmp = blob.Skip(i * 148).Take(148).ToList();
-                var no = tmp.Take(4).ToArray()[0];
-                if (no != charaNo) continue;
 
-                var zeroData = new byte[148];
-                Array.Copy(zeroData, 0, blob, i * 148,148);
-                break;
+            List<byte[]> charactBytes = new List<byte[]>();
+
+            // 形成角色列表
+            var count = blob.Length / 148;
+            for (var i = 0; i < count; i++)
+            {
+                var tmp = blob.Skip(i * 148).Take(148).ToArray();
+                //var no = tmp.Take(4).ToArray()[0];
+                //if (no != charaNo) continue;
+
+                //var zeroData = new byte[148];
+                //Array.Copy(zeroData, 0, blob, i * 148,148);
+                //break;
+                charactBytes.Add(tmp);
             }
+            // 判断删除角色
+            var cb = charactBytes.FirstOrDefault(t => t.Take(4).ToArray()[0] == charaNo);
+            if (cb != null)
+            {
+                charactBytes.Remove(cb);
+            }
+            var needCount = 36 - charactBytes.Count;
+            for(var i = 0; i < needCount; i++)
+            {
+                charactBytes.Add(new byte[148]);
+            }
+
+            
+            for(var i = 0; i < charactBytes.Count; i++)
+            {
+                System.Buffer.BlockCopy(charactBytes[i], 0, blob, i * 148, charactBytes[i].Length);
+            }
+
             var data = SharpZipHelper.SharpZipLibCompress(blob);
             var info = new byte[data.Length + 4];
             info[0] = 208;
@@ -396,7 +419,7 @@ from charac_info";
         /// </summary>
         /// <param name="charaNo"></param>
         /// <returns></returns>
-        public async Task<bool> ResumeCharac(long mid,int charaNo)
+        public async Task<bool> ResumeCharac(long mid, int charaNo)
         {
             var startIndex = 0;
             var bytes = new byte[148];
@@ -445,7 +468,7 @@ where charac_no='{charaNo}' ";
                 {
                     var tmp = items.FirstOrDefault(t => t.Slot == i);
                     if (tmp == null)
-                        dic.Add( 0);
+                        dic.Add(0);
                     else
                         dic.Add(tmp.ItId);
                 }
@@ -471,21 +494,21 @@ where charac_no='{charaNo}' ";
             blob = blob.ToList().GetRange(4, blob.Length - 4).ToArray();
             blob = SharpZipHelper.SharpZipLibDecompress(blob.ToArray());
             var count = blob.Length / 148;
-            for(var i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var tmp = blob.Skip(i * 148).Take(148).ToList();
                 if (tmp.Take(4).ToArray()[0] != 0) continue;
 
                 Array.Copy(bytes, 0, blob, i * 148, bytes.Length);
                 break;
-            }            
+            }
             var data = SharpZipHelper.SharpZipLibCompress(blob);
             var info = new byte[data.Length + 4];
             info[0] = 208;
             info[1] = 20;
             info[2] = 0;
             info[3] = 0;
-            Array.Copy(data,0,info,4, data.Length);
+            Array.Copy(data, 0, info, 4, data.Length);
             views.Info = info;
 
             await DbFrameworkScope.TaiwanCain.Updateable<CharacView>(views).ExecuteCommandAsync();
