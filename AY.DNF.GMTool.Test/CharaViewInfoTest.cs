@@ -14,7 +14,7 @@ namespace AY.DNF.GMTool.Test
         public static void CharacView()
         {
             //DbFrameworkScope.Init("192.168.200.131","game", "uu5!^%jg",3306);
-            var view = DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == 18000000).First();
+            var view = DbFrameworkScope.TaiwanCain.Queryable<CharacView>().Where(t => t.MId == 18000001).First();
 
             // info流
             var blob = view.Info.ToList();
