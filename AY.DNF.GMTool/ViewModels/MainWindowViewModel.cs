@@ -377,12 +377,12 @@ namespace AY.DNF.GMTool.ViewModels
             {
                 while (true)
                 {
-                    if (ct.IsCancellationRequested) return;
+                    if (pct.IsCancellationRequested) return;
 
                     if (!string.IsNullOrWhiteSpace(Server))
                         PingServer();
 
-                    // 第分钟ping一次
+                    // 每分钟ping一次
                     Task.Delay(60 * 1000);
                 }
             });
@@ -485,7 +485,8 @@ namespace AY.DNF.GMTool.ViewModels
 
             WriteCfg();
 
-            PingServer();
+            // 连接成功后不立即ping，避免立即断开连接
+            // PingServer();
         }
 
         /// <summary>
@@ -535,6 +536,7 @@ namespace AY.DNF.GMTool.ViewModels
             OpenEnabled = true;
             ConnectedForEnabled = false;
             _timeTaskCancelTokenSource.Cancel();
+            _pingTaskCancelTokenSource.Cancel();
         }
 
         /// <summary>

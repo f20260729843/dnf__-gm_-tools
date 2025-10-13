@@ -83,7 +83,6 @@
             Background="Transparent"
             WindowChrome.IsHitTestVisibleInChrome="True">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <Button Click=""/>
                 <Button
                     Click="MinClick"
                     Content="&#xe624;"

@@ -3,6 +3,7 @@ using SqlSugar;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using TiaoTiaoCode.NLogger;
 
 namespace AY.DNF.GMTool.Db
@@ -176,11 +177,20 @@ namespace AY.DNF.GMTool.Db
 
         public static void Disconnect()
         {
-            DTaiwan.Close();
-            TaiwanCain.Close();
-            TaiwanBilling.Close();
-            TaiwanCain2nd.Close();
-            GMToolDb.Close();
+            try
+            {
+                DTaiwan?.Close();
+                TaiwanCain?.Close();
+                TaiwanBilling?.Close();
+                TaiwanCain2nd?.Close();
+                TaiwanLogin?.Close();
+                TaiwanGameEvent?.Close();
+                GMToolDb?.Close();
+            }
+            catch (Exception ex)
+            {
+                TiaoTiaoNLogger.LogError($"断开连接时发生异常: {ex.Message}", ex);
+            }
         }
 
         /// <summary>
