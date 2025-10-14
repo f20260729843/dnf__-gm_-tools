@@ -7,47 +7,176 @@
     Width="1280"
     Height="768"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    WindowStartupLocation="CenterScreen">
+    WindowStartupLocation="CenterScreen"
+    Background="#F5F5F5"
+    FontFamily="Microsoft YaHei UI">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CornerRadius="15" GlassFrameThickness="-1" />
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <!-- 定义渐变画刷 -->
+        <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#4A90E2" Offset="0"/>
+            <GradientStop Color="#357ABD" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <LinearGradientBrush x:Key="ButtonHoverGradient" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F0F0F0" Offset="0"/>
+            <GradientStop Color="#D0D0D0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- 美化TextBlock样式 -->
         <Style TargetType="TextBlock">
             <Setter Property="Margin" Value="5" />
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#333333" />
+            <Setter Property="FontSize" Value="12" />
         </Style>
 
+        <!-- 美化TextBox样式 -->
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="5" />
-            <Setter Property="Height" Value="25" />
+            <Setter Property="Height" Value="28" />
             <Setter Property="Width" Value="100" />
             <Setter Property="TextAlignment" Value="Left" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="5,0" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#CCCCCC" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="12" />
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#4A90E2" />
+                    <Setter Property="BorderThickness" Value="2" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
+        <!-- 美化GroupBox样式 -->
         <Style TargetType="GroupBox">
-            <Setter Property="HeaderTemplate">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
                 <Setter.Value>
-                    <DataTemplate>
-                        <TextBlock
-                            FontSize="14"
-                            FontWeight="Bold"
-                            Text="{Binding}" />
-                    </DataTemplate>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="3">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#20000000" BlurRadius="3" ShadowDepth="1" Direction="270"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border Background="{StaticResource HeaderGradient}" 
+                                    CornerRadius="3,3,0,0"
+                                    Height="30"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Top">
+                                <TextBlock FontSize="14" 
+                                           FontWeight="Bold" 
+                                           Foreground="White"
+                                           HorizontalAlignment="Left" 
+                                           VerticalAlignment="Center"
+                                           Margin="10,0,0,0"
+                                           Text="{TemplateBinding Header}" />
+                            </Border>
+                            <ContentPresenter Margin="0,30,0,0" />
+                        </Grid>
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- 美化Button样式 -->
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Background" Value="{StaticResource ButtonGradient}" />
+            <Setter Property="BorderBrush" Value="#CCCCCC" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="#333333" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" 
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource ButtonHoverGradient}" />
+                                <Setter Property="BorderBrush" Value="#4A90E2" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D0D0D0" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#F5F5F5" />
+                                <Setter Property="Foreground" Value="#999999" />
+                                <Setter Property="BorderBrush" Value="#E0E0E0" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 连接按钮特殊样式 -->
+        <Style x:Key="ConnectButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#4CAF50" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#45A049" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#45A049" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#3E8E41" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 断开按钮特殊样式 -->
+        <Style x:Key="DisconnectButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#F44336" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#DA190B" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#DA190B" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#B71C1C" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="60" />
             <RowDefinition Height="auto" />
             <RowDefinition />
-            <RowDefinition Height="20" />
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320" />
@@ -64,14 +193,15 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Center">
             <TextBlock
-                FontSize="16"
-                Foreground="Orange"
+                FontSize="18"
+                FontWeight="Bold"
+                Foreground="#4A90E2"
                 Text="{Binding Title}" />
             <TextBlock
                 Margin="0,2,0,0"
                 HorizontalAlignment="Center"
-                FontSize="10"
-                Foreground="LightCoral"
+                FontSize="11"
+                Foreground="#666666"
                 Text="{Binding Version}" />
         </StackPanel>
 
@@ -120,13 +250,15 @@
                         Margin="3"
                         Command="{Binding ConnectCommand}"
                         Content="连接"
-                        IsEnabled="{Binding OpenEnabled}" />
+                        IsEnabled="{Binding OpenEnabled}"
+                        Style="{StaticResource ConnectButtonStyle}" />
                     <Button
                         Width="80"
                         Margin="3"
                         Command="{Binding DisconnectCommand}"
                         Content="断开"
-                        IsEnabled="{Binding ConnectedForEnabled}" />
+                        IsEnabled="{Binding ConnectedForEnabled}"
+                        Style="{StaticResource DisconnectButtonStyle}" />
                     <Button
                         Width="80"
                         Margin="3"
@@ -288,12 +420,19 @@
                   Name="gridMember"
                   Grid.Row="2"
                   AutoGenerateColumns="False"
-                  Background="Transparent"
+                  Background="White"
                   CanUserAddRows="False"
                   CanUserDeleteRows="False"
-                  HorizontalGridLinesBrush="#33000000"
+                  HorizontalGridLinesBrush="#E0E0E0"
                   ItemsSource="{Binding MemberInfos}"
-                  VerticalGridLinesBrush="#33000000">
+                  VerticalGridLinesBrush="#E0E0E0"
+                  BorderBrush="#E0E0E0"
+                  BorderThickness="1"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  AlternatingRowBackground="#F8F8F8"
+                  RowBackground="White"
+                  SelectionMode="Single">
 
             <hc:Interaction.Triggers>
                 <hc:EventTrigger EventName="SelectionChanged">
@@ -301,29 +440,131 @@
                 </hc:EventTrigger>
             </hc:Interaction.Triggers>
 
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{StaticResource HeaderGradient}" />
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="FontSize" Value="12" />
+                    <Setter Property="Padding" Value="8,5" />
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Setter Property="BorderBrush" Value="#357ABD" />
+                    <Setter Property="BorderThickness" Value="0,0,1,0" />
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="White" />
+                    <Setter Property="Foreground" Value="#333333" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridRow">
+                                <Border x:Name="DGR_Border" 
+                                        Background="{TemplateBinding Background}" 
+                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        SnapsToDevicePixels="True">
+                                    <SelectiveScrollingGrid>
+                                        <SelectiveScrollingGrid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </SelectiveScrollingGrid.ColumnDefinitions>
+                                        <SelectiveScrollingGrid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </SelectiveScrollingGrid.RowDefinitions>
+                                        <DataGridCellsPresenter Grid.Column="1" 
+                                                               ItemsPanel="{TemplateBinding ItemsPanel}" 
+                                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        <DataGridDetailsPresenter Grid.Column="1" Grid.Row="1" 
+                                                                SelectiveScrollingGrid.SelectiveScrollingOrientation="{Binding AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" 
+                                                                Visibility="{TemplateBinding DetailsVisibility}"/>
+                                        <DataGridRowHeader Grid.RowSpan="2" 
+                                                          SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical" 
+                                                          Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Row}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    </SelectiveScrollingGrid>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="DGR_Border" Property="Background" Value="#E3F2FD" />
+                                        <Setter Property="Foreground" Value="#333333" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="DGR_Border" Property="Background" Value="#2196F3" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="True" />
+                                            <Condition Property="IsMouseOver" Value="True" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="DGR_Border" Property="Background" Value="#1976D2" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </MultiTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.RowStyle>
+            
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="8,4" />
+                    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+            
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="50"
                     Binding="{Binding CharacNo}"
                     Header="编号"
-                    IsReadOnly="True" />
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn
                     Width="200"
                     Binding="{Binding CharacName}"
                     Header="角色名"
-                    IsReadOnly="True" />
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn
                     Width="50"
                     Binding="{Binding Level}"
                     Header="等级"
-                    IsReadOnly="True" />
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
 
         <Grid
             Grid.Row="2"
             Grid.Column="1"
-            Background="AliceBlue">
+            Background="White">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
                 <RowDefinition />
@@ -335,21 +576,44 @@
                         <Setter Property="Height" Value="38" />
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="IsEnabled" Value="{Binding ConnectedForEnabled}" />
+                        <Setter Property="FontSize" Value="12" />
+                        <Setter Property="FontWeight" Value="Normal" />
+                        <Setter Property="Foreground" Value="#333333" />
+                        <Setter Property="Cursor" Value="Hand" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="RadioButton">
-                                    <Border Background="{TemplateBinding Background}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="#CCCCCC"
+                                            BorderThickness="1"
+                                            CornerRadius="3">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center" 
+                                                          Margin="5" />
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource HeaderGradient}" />
+                                            <Setter Property="Foreground" Value="White" />
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E3F2FD" />
+                                            <Setter Property="BorderBrush" Value="#4A90E2" />
+                                            <Setter Property="Foreground" Value="#1976D2" />
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsChecked" Value="True" />
+                                                <Condition Property="IsMouseOver" Value="True" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" Value="#1976D2" />
+                                            <Setter Property="Foreground" Value="White" />
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
-
-                        <Style.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Background" Value="#33000000" />
-                            </Trigger>
-                        </Style.Triggers>
                     </Style>
                 </StackPanel.Resources>
 
@@ -385,25 +649,31 @@
             <Border
                 Grid.Row="1"
                 Margin="10"
-                Background="#33000000">
+                Background="White"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="3">
+                <Border.Effect>
+                    <DropShadowEffect Color="#20000000" BlurRadius="5" ShadowDepth="2" Direction="270"/>
+                </Border.Effect>
                 <ContentControl
                     Margin="10"
-                    prism:RegionManager.RegionName="ContentRegion"
-                    BorderBrush="Red"
-                    BorderThickness="1" />
+                    prism:RegionManager.RegionName="ContentRegion" />
             </Border>
         </Grid>
 
-        <Grid
-            Grid.Row="3"
-            Grid.ColumnSpan="2"
-            TextBlock.FontSize="10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300" />
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition Width="200" />
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="3"
+                Grid.ColumnSpan="2"
+                Background="#F8F8F8"
+                BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0">
+            <Grid TextBlock.FontSize="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
 
             <StackPanel
                 HorizontalAlignment="Left"
@@ -456,11 +726,12 @@
                     Text="{Binding PingStateStr}" />
             </StackPanel>
 
-            <TextBlock
-                Grid.Column="2"
-                Margin="5"
-                Text="{Binding SysTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
-        </Grid>
+                <TextBlock
+                    Grid.Column="2"
+                    Margin="5"
+                    Text="{Binding SysTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+            </Grid>
+        </Border>
 
     </Grid>
 </Window>
