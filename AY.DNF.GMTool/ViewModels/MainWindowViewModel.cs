@@ -29,7 +29,7 @@ using TiaoTiaoCode.NLogger;
 
 namespace AY.DNF.GMTool.ViewModels
 {
-    public class MainWindowViewModel : BindableBase
+    public class MainWindowViewModel : BindableBase, IDisposable
     {
         readonly IModuleManager _moduleMng;
         readonly IRegionManager _regionMng;
@@ -328,13 +328,8 @@ namespace AY.DNF.GMTool.ViewModels
         /// </summary>
         public ICommand AppCloseCommand => _appCloseCommand ??= new DelegateCommand(() =>
         {
-            _timeTaskCancelTokenSource.Cancel();
-            _pingTaskCancelTokenSource.Cancel();
-
-            DbFrameworkScope.TaiwanCain2nd?.Close();
-            DbFrameworkScope.TaiwanCain?.Close();
-            DbFrameworkScope.DTaiwan?.Close();
-            DbFrameworkScope.TaiwanBilling?.Close();
+            // 使用Dispose方法统一清理资源
+            Dispose();
 
             Application.Current.Shutdown();
         });
@@ -351,18 +346,24 @@ namespace AY.DNF.GMTool.ViewModels
             _timeTaskCancelTokenSource = new CancellationTokenSource();
             var ct = _timeTaskCancelTokenSource.Token;
 
-            _timeTask = new Task(() =>
+            _timeTask = new Task(async () =>
             {
-                Dispatcher.CurrentDispatcher.Invoke(() =>
+                while (!ct.IsCancellationRequested)
                 {
-                    while (true)
+                    Dispatcher.CurrentDispatcher.Invoke(() =>
                     {
-                        if (ct.IsCancellationRequested) return;
-
                         SysTime = DateTime.Now;
-                        Task.Delay(1000);
+                    });
+                    
+                    try
+                    {
+                        await Task.Delay(1000, ct);
                     }
-                });
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                }
             }, ct);
             _timeTask.Start();
 
@@ -373,29 +374,41 @@ namespace AY.DNF.GMTool.ViewModels
             _pingTaskCancelTokenSource = new CancellationTokenSource();
             var pct = _pingTaskCancelTokenSource.Token;
 
-            _pingTask = new Task(() =>
+            _pingTask = new Task(async () =>
             {
-                while (true)
+                while (!pct.IsCancellationRequested)
                 {
-                    if (pct.IsCancellationRequested) return;
-
                     if (!string.IsNullOrWhiteSpace(Server))
                         PingServer();
 
-                    // 每分钟ping一次
-                    Task.Delay(60 * 1000);
+                    try
+                    {
+                        // 每分钟ping一次
+                        await Task.Delay(60 * 1000, pct);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
                 }
-            });
+            }, pct);
             _pingTask.Start();
 
             #endregion
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                Task.Delay(5000);
-                Growl.Info("首次使用，请先进行Script.pvf导入，以便生成基础数据\r\n若版本更换也需重新导入Script.pvf");
+                try
+                {
+                    await Task.Delay(5000);
+                    Growl.Info("首次使用，请先进行Script.pvf导入，以便生成基础数据\r\n若版本更换也需重新导入Script.pvf");
 
-                GetLastVersion();
+                    GetLastVersion();
+                }
+                catch (OperationCanceledException)
+                {
+                    // 任务被取消，正常退出
+                }
             });
         }
 
@@ -468,6 +481,11 @@ namespace AY.DNF.GMTool.ViewModels
             }
             catch (Exception ex)
             {
+                // 更新状态栏为连接异常状态
+                StateColor = new SolidColorBrush(Color.FromArgb(_redStateColor.A, _redStateColor.R, _redStateColor.G, _redStateColor.B));
+                EffectColor = Color.FromArgb(_redEffectColor.A, _redEffectColor.R, _redEffectColor.G, _redEffectColor.B);
+                PingStateStr = "连接异常";
+                
                 Growl.Error(ex.Message);
                 return;
             }
@@ -475,6 +493,12 @@ namespace AY.DNF.GMTool.ViewModels
             {
                 OpenEnabled = true;
                 ConnectedForEnabled = false;
+                
+                // 更新状态栏为连接失败状态
+                StateColor = new SolidColorBrush(Color.FromArgb(_redStateColor.A, _redStateColor.R, _redStateColor.G, _redStateColor.B));
+                EffectColor = Color.FromArgb(_redEffectColor.A, _redEffectColor.R, _redEffectColor.G, _redEffectColor.B);
+                PingStateStr = "数据库连接失败";
+                
                 Growl.Error("数据库连接失败");
                 return;
             }
@@ -482,6 +506,11 @@ namespace AY.DNF.GMTool.ViewModels
             Growl.Success("连接成功");
             OpenEnabled = false;
             ConnectedForEnabled = true;
+
+            // 立即更新状态栏为连接成功状态
+            StateColor = new SolidColorBrush(Color.FromArgb(_greenStateColor.A, _greenStateColor.R, _greenStateColor.G, _greenStateColor.B));
+            EffectColor = Color.FromArgb(_greenEffectColor.A, _greenEffectColor.R, _greenEffectColor.G, _greenEffectColor.B);
+            PingStateStr = "数据库连接成功";
 
             WriteCfg();
 
@@ -537,6 +566,10 @@ namespace AY.DNF.GMTool.ViewModels
             ConnectedForEnabled = false;
             _timeTaskCancelTokenSource.Cancel();
             _pingTaskCancelTokenSource.Cancel();
+
+            // 更新状态栏为断开连接状态
+            StateColor = new SolidColorBrush(Color.FromArgb(System.Drawing.Color.LightGray.A, System.Drawing.Color.LightGray.R, System.Drawing.Color.LightGray.G, System.Drawing.Color.LightGray.B));
+            PingStateStr = "已断开连接";
         }
 
         /// <summary>
@@ -766,6 +799,52 @@ namespace AY.DNF.GMTool.ViewModels
             var bitmap = Bitmaps.FromArray(data, new System.Drawing.Size((int)sprite.Width, (int)sprite.Height), type);
             bitmap.Save(@"D:\test.png");
         }
+
+        #region IDisposable Implementation
+
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                // 取消所有后台任务
+                _timeTaskCancelTokenSource?.Cancel();
+                _pingTaskCancelTokenSource?.Cancel();
+
+                // 等待任务完成
+                try
+                {
+                    _timeTask?.Wait(1000); // 等待最多1秒
+                    _pingTask?.Wait(1000);
+                }
+                catch (AggregateException)
+                {
+                    // 忽略任务取消异常
+                }
+
+                // 释放CancellationTokenSource
+                _timeTaskCancelTokenSource?.Dispose();
+                _pingTaskCancelTokenSource?.Dispose();
+
+                // 断开数据库连接
+                DbFrameworkScope.Disconnect();
+            }
+            _disposed = true;
+        }
+
+        ~MainWindowViewModel()
+        {
+            Dispose(false);
+        }
+
+        #endregion
     }
 }
 

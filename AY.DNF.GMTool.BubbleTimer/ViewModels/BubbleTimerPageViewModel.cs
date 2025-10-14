@@ -12,7 +12,7 @@ using System.Windows.Input;
 
 namespace AY.DNF.GMTool.BubbleTimer.ViewModels
 {
-    public class BubbleTimerPageViewModel : BindableBase
+    public class BubbleTimerPageViewModel : BindableBase, IDisposable
     {
         Task? _intervalTask;
         CancellationTokenSource? _cancellationTokenSource;
@@ -139,7 +139,7 @@ namespace AY.DNF.GMTool.BubbleTimer.ViewModels
 
             _cancellationTokenSource = new CancellationTokenSource();
             var ct = _cancellationTokenSource.Token;
-            _intervalTask = new Task(() =>
+            _intervalTask = new Task(async () =>
             {
                 var service = new BubbleService();
                 DateTime? lastCoin = null, lastPoint = null;
@@ -170,7 +170,14 @@ namespace AY.DNF.GMTool.BubbleTimer.ViewModels
                         }
                     }
 
-                    Task.Delay(1000);
+                    try
+                    {
+                        await Task.Delay(1000, ct);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
                 }
             }, ct);
 
@@ -202,5 +209,45 @@ namespace AY.DNF.GMTool.BubbleTimer.ViewModels
                 RunLogs.Insert(0, new RunLogModel { AccountCounts = rowCount, LogInfo = info, LogTime = logTime });
             });
         }
+
+        #region IDisposable Implementation
+
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                // 取消后台任务
+                _cancellationTokenSource?.Cancel();
+
+                // 等待任务完成
+                try
+                {
+                    _intervalTask?.Wait(1000); // 等待最多1秒
+                }
+                catch (AggregateException)
+                {
+                    // 忽略任务取消异常
+                }
+
+                // 释放CancellationTokenSource
+                _cancellationTokenSource?.Dispose();
+            }
+            _disposed = true;
+        }
+
+        ~BubbleTimerPageViewModel()
+        {
+            Dispose(false);
+        }
+
+        #endregion
     }
 }
