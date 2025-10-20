@@ -21,12 +21,12 @@
             <GradientStop Color="#4A90E2" Offset="0"/>
             <GradientStop Color="#357ABD" Offset="1"/>
         </LinearGradientBrush>
-        
+
         <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="#FFFFFF" Offset="0"/>
             <GradientStop Color="#E8E8E8" Offset="1"/>
         </LinearGradientBrush>
-        
+
         <LinearGradientBrush x:Key="ButtonHoverGradient" StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="#F0F0F0" Offset="0"/>
             <GradientStop Color="#D0D0D0" Offset="1"/>
@@ -231,51 +231,58 @@
 
         <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
             <GroupBox Header="数据库设置">
-                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                    <TextBlock Text="IP地址" />
-                    <TextBox Width="150" Text="{Binding Server, Mode=TwoWay}" />
-                    <TextBlock Text="用户名" />
-                    <TextBox Text="{Binding UserName, Mode=TwoWay}" />
-                    <TextBlock Text="密码" />
-                    <TextBox
+                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="IP地址" />
+                        <TextBox Width="150" Text="{Binding Server, Mode=TwoWay}" />
+                        <TextBlock Text="用户名" />
+                        <TextBox Text="{Binding UserName, Mode=TwoWay}" />
+                        <TextBlock Text="密码" />
+                        <TextBox
                         Name="pwd"
                         Width="100"
                         Margin="3"
                         Text="{Binding Pwd, Mode=TwoWay}" />
 
-                    <TextBlock Text="端口" />
-                    <TextBox Text="{Binding Port, Mode=TwoWay}" />
-                    <Button
+                        <TextBlock Text="端口" />
+                        <TextBox Text="{Binding Port, Mode=TwoWay}" />
+                        <Button
                         Width="80"
                         Margin="3"
                         Command="{Binding ConnectCommand}"
                         Content="连接"
                         IsEnabled="{Binding OpenEnabled}"
                         Style="{StaticResource ConnectButtonStyle}" />
-                    <Button
+                        <Button
                         Width="80"
                         Margin="3"
                         Command="{Binding DisconnectCommand}"
                         Content="断开"
                         IsEnabled="{Binding ConnectedForEnabled}"
                         Style="{StaticResource DisconnectButtonStyle}" />
-                    <Button
+                        <Button
                         Width="80"
                         Margin="3"
                         Command="{Binding ChangePwdCommand}"
                         Content="切换密码" />
-                    <!--<Button
+                        <!--<Button
                         Width="80"
                         Margin="5"
                         Command="{Binding TestCommand}"
                         Content="测试" />-->
-                    <TextBlock
+                        <TextBlock
                         Grid.Row="1"
                         Margin="3"
                         VerticalAlignment="Center"
                         Foreground="Red"
                         Text="切换密码：因为不同版本数据库密码可能不同，方便切换，不用记忆"
                         TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="数据库慢连接时长"/>
+                        <TextBox Text="{Binding DbTimeout,Mode=TwoWay}"/>
+                        <TextBlock Foreground="Red" Text="虚拟机性能不好，或因数据库连接超时时再修改这个值。无特殊情况不要修改。0-表示使用默认值"/>
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
 
@@ -453,7 +460,7 @@
                     <Setter Property="BorderThickness" Value="0,0,1,0" />
                 </Style>
             </DataGrid.ColumnHeaderStyle>
-            
+
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background" Value="White" />
@@ -509,7 +516,7 @@
                     </Setter>
                 </Style>
             </DataGrid.RowStyle>
-            
+
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <Setter Property="BorderThickness" Value="0" />
@@ -523,7 +530,7 @@
                     </Style.Triggers>
                 </Style>
             </DataGrid.CellStyle>
-            
+
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="50"
@@ -675,56 +682,56 @@
                     <ColumnDefinition Width="200" />
                 </Grid.ColumnDefinitions>
 
-            <StackPanel
+                <StackPanel
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Orientation="Horizontal">
-                <TextBlock
+                    <TextBlock
                     Margin="3"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     Foreground="CadetBlue"
                     Text="{Binding LastReleaseVersion, StringFormat=最新版本号：{0}}" />
 
-                <Button
+                    <Button
                     Margin="3,0,0,0"
                     BorderThickness="0"
                     Command="{Binding ShowLastVersionInfoCommand}"
                     Content="[ 查看 ]" />
 
-                <Button
+                    <Button
                     Margin="3,0,0,0"
                     BorderThickness="0"
                     Command="{Binding GotoDownloadCommand}"
                     Content="[ 下载更新 ]"
                     Foreground="Blue"
                     Visibility="{Binding IsShowDownload}" />
-            </StackPanel>
+                </StackPanel>
 
-            <StackPanel
+                <StackPanel
                 Grid.Column="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Orientation="Horizontal">
-                <Border
+                    <Border
                     Width="20"
                     Height="20"
                     Background="{Binding StateColor}"
                     CornerRadius="20">
-                    <Border.Effect>
-                        <DropShadowEffect
+                        <Border.Effect>
+                            <DropShadowEffect
                             BlurRadius="10"
                             ShadowDepth="0"
                             Color="{Binding EffectColor}" />
-                    </Border.Effect>
-                </Border>
-                <TextBlock
+                        </Border.Effect>
+                    </Border>
+                    <TextBlock
                     Width="100"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Foreground="{Binding StateColor}"
                     Text="{Binding PingStateStr}" />
-            </StackPanel>
+                </StackPanel>
 
                 <TextBlock
                     Grid.Column="2"

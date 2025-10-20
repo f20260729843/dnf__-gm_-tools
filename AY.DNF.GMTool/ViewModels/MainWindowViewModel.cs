@@ -171,6 +171,16 @@ namespace AY.DNF.GMTool.ViewModels
             set { SetProperty(ref _pwd, value); }
         }
 
+        private int _dbTimeout=0;
+        /// <summary>
+        /// 数据库慢连接时长
+        /// </summary>
+        public int DbTimeout
+        {
+            get { return _dbTimeout; }
+            set { SetProperty(ref _dbTimeout, value); }
+        }
+
         #endregion
 
         private string _searchAccount = "";
@@ -354,7 +364,7 @@ namespace AY.DNF.GMTool.ViewModels
                     {
                         SysTime = DateTime.Now;
                     });
-                    
+
                     try
                     {
                         await Task.Delay(1000, ct);
@@ -477,7 +487,7 @@ namespace AY.DNF.GMTool.ViewModels
             bool b;
             try
             {
-                b = DbFrameworkScope.Init(Server, UserName, Pwd, Port);
+                b = DbFrameworkScope.Init(Server, UserName, Pwd, Port,DbTimeout);
             }
             catch (Exception ex)
             {
@@ -485,7 +495,7 @@ namespace AY.DNF.GMTool.ViewModels
                 StateColor = new SolidColorBrush(Color.FromArgb(_redStateColor.A, _redStateColor.R, _redStateColor.G, _redStateColor.B));
                 EffectColor = Color.FromArgb(_redEffectColor.A, _redEffectColor.R, _redEffectColor.G, _redEffectColor.B);
                 PingStateStr = "连接异常";
-                
+
                 Growl.Error(ex.Message);
                 return;
             }
@@ -493,12 +503,12 @@ namespace AY.DNF.GMTool.ViewModels
             {
                 OpenEnabled = true;
                 ConnectedForEnabled = false;
-                
+
                 // 更新状态栏为连接失败状态
                 StateColor = new SolidColorBrush(Color.FromArgb(_redStateColor.A, _redStateColor.R, _redStateColor.G, _redStateColor.B));
                 EffectColor = Color.FromArgb(_redEffectColor.A, _redEffectColor.R, _redEffectColor.G, _redEffectColor.B);
                 PingStateStr = "数据库连接失败";
-                
+
                 Growl.Error("数据库连接失败");
                 return;
             }

@@ -66,18 +66,20 @@ namespace AY.DNF.GMTool.Db
         /// <param name="userName"></param>
         /// <param name="pwd"></param>
         /// <param name="port"></param>
-        public static bool Init(string server, string userName, string pwd, int port)
+        public static bool Init(string server, string userName, string pwd, int port, int timeout = 0)
         {
             try
             {
-                var baseConn = $"Server={server};Port={port};Uid={userName};Pwd={pwd};Charset=utf8;AllowZeroDateTime=True;ConvertZeroDateTime=True;";
-                var baseMySql= new SqlSugarScope(new ConnectionConfig
+                var baseConn = $"Server={server};Port={port};Uid={userName};Pwd={pwd};Charset=utf8;AllowZeroDateTime=True;ConvertZeroDateTime=True;{(timeout <= 0 ? "" : $"Connection Timeout={timeout};")}";
+                var baseMySql = new SqlSugarScope(new ConnectionConfig
                 {
                     DbType = DbType.MySql,
                     ConfigId = "base",
                     ConnectionString = $"{baseConn}",
                     IsAutoCloseConnection = true,
                 });
+                if(timeout > 0 )
+                    baseMySql.Ado.CommandTimeOut = timeout;
 
                 _dTaiwan = new SqlSugarScope(new ConnectionConfig
                 {
@@ -86,6 +88,8 @@ namespace AY.DNF.GMTool.Db
                     ConnectionString = $"{baseConn}Database=d_taiwan;",
                     IsAutoCloseConnection = true,
                 });
+                if (timeout > 0)
+                    _dTaiwan.Ado.CommandTimeOut = timeout;
 
                 _taiwanCain = new SqlSugarScope(new ConnectionConfig
                 {
@@ -94,6 +98,8 @@ namespace AY.DNF.GMTool.Db
                     ConnectionString = $"{baseConn}Database=taiwan_cain;CharSet=latin1;",
                     IsAutoCloseConnection = true,
                 });
+                if (timeout > 0)
+                    _taiwanCain.Ado.CommandTimeOut = timeout;
 
                 _taiwanBillinig = new SqlSugarScope(new ConnectionConfig
                 {
@@ -102,6 +108,8 @@ namespace AY.DNF.GMTool.Db
                     ConnectionString = $"{baseConn}Database=taiwan_billing;",
                     IsAutoCloseConnection = true,
                 });
+                if (timeout > 0)
+                    _taiwanBillinig.Ado.CommandTimeOut = timeout;
 
                 _taiwanCain2nd = new SqlSugarScope(new ConnectionConfig
                 {
@@ -110,6 +118,8 @@ namespace AY.DNF.GMTool.Db
                     ConnectionString = $"{baseConn}Database=taiwan_cain_2nd;",
                     IsAutoCloseConnection = true,
                 });
+                if (timeout > 0)
+                    _taiwanCain2nd.Ado.CommandTimeOut = 60;
 
                 _taiwanLogin = new SqlSugarScope(new ConnectionConfig
                 {
@@ -118,6 +128,8 @@ namespace AY.DNF.GMTool.Db
                     ConnectionString = $"{baseConn}Database=taiwan_login;",
                     IsAutoCloseConnection = true,
                 });
+                if (timeout > 0)
+                    _taiwanLogin.Ado.CommandTimeOut = 60;
 
                 _taiwanGameEvent = new SqlSugarScope(new ConnectionConfig
                 {
@@ -126,6 +138,8 @@ namespace AY.DNF.GMTool.Db
                     ConnectionString = $"{baseConn}Database=taiwan_game_event;",
                     IsAutoCloseConnection = true,
                 });
+                if (timeout > 0)
+                    _taiwanGameEvent.Ado.CommandTimeOut = 60;
 
                 //var sqliteDb = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalData");
                 //if (!Directory.Exists(sqliteDb))
@@ -139,6 +153,8 @@ namespace AY.DNF.GMTool.Db
                     ConnectionString = $"{baseConn}Database=gm_tool;AllowLoadLocalInfile=true;",
                     IsAutoCloseConnection = true,
                 });
+                if (timeout > 0)
+                    _gmToolDb.Ado.CommandTimeOut = 60;
 
                 _dTaiwan.Ado.CheckConnection();
                 _taiwanCain.Ado.CheckConnection();
@@ -146,10 +162,10 @@ namespace AY.DNF.GMTool.Db
                 _taiwanCain2nd.Ado.CheckConnection();
 
                 var dbList = baseMySql.DbMaintenance.GetDataBaseList();
-                if(!dbList.Exists(t=>t.Equals("gm_tool")))
+                if (!dbList.Exists(t => t.Equals("gm_tool")))
                 {
-                    var b= _gmToolDb.DbMaintenance.CreateDatabase("gm_tool",null);
-                    if (!b) return false;                    
+                    var b = _gmToolDb.DbMaintenance.CreateDatabase("gm_tool", null);
+                    if (!b) return false;
                 }
                 if (!_gmToolDb.DbMaintenance.IsAnyTable("equipments"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Equipments));
@@ -161,7 +177,7 @@ namespace AY.DNF.GMTool.Db
                     _gmToolDb.CodeFirst.InitTables(typeof(JobTree));
                 if (!_gmToolDb.DbMaintenance.IsAnyTable("quests"))
                     _gmToolDb.CodeFirst.InitTables(typeof(Quests));
-                
+
                 _gmToolDb.Ado.CheckConnection();
 
                 CheckCharacInfoVIPColumn();
