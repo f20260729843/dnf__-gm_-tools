@@ -161,7 +161,7 @@ namespace pvfLoaderXinyu
         /// <param name="node"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        public string GetPvfFileByPath(HeaderTreeNode node, Encoding encoding)
+        public string? GetPvfFileByPath(HeaderTreeNode node, Encoding encoding)
         {
             //直接取解密内容
             byte[] unpackedStrBytes = node.unpackedFileByteArr;
@@ -175,6 +175,11 @@ namespace pvfLoaderXinyu
             arr.Add(strpos, bts);
             //指针向后移动
             strpos = bts.Length;
+
+            if (unpackedStrBytes == null)
+            {
+                return null;
+            }
 
             //文件结构为：byte[2](0xb0,0xd0打开好多文件这里都是这个值，猜测应该是固定的)byte[1]int[1]byte[1]int[1]byte[1]...以此循环，byte[1]为指示符，int[1]占四位为一个数字，具体意义需要看指示位
             if (unpackedStrBytes.Length >= 7)//如果总字节长度>=7
