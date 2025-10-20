@@ -255,6 +255,12 @@ namespace AY.DNF.GMTool.SuperTool.ViewModels
         /// </summary>
         public ICommand DeleteCharacNameReleaseCommand => _deleteCharacNameReleaseCommand ??= new DelegateCommand(DoDeleteCharacNameReleaseCommand);
 
+        /// <summary>
+        /// 解除创建人物限制
+        /// </summary>
+        ICommand _unlimitCharactorCommand;
+        public ICommand UnlimitCharactorCommand => _unlimitCharactorCommand ??= new DelegateCommand(DoUnlimitCharactorCommand);
+
         #endregion
 
         ICommand? _rechageChangedCommand;
@@ -632,6 +638,15 @@ namespace AY.DNF.GMTool.SuperTool.ViewModels
         {
             var b = await new MemberService().DeleteCharacNameRelease();
             OperateMsg = $"释放删除角色名称{(b ? "成功" : "失败")}";
+        }
+
+        /// <summary>
+        /// 解除人物限制
+        /// </summary>
+        async void DoUnlimitCharactorCommand()
+        {
+            var b = await new MemberService().UnlimitCharactor();
+            OperateMsg = $"解除限制{(b ? "成功" : "失败")}";
         }
     }
 }

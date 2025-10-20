@@ -234,6 +234,16 @@ where 1=1 ";
         }
 
         /// <summary>
+        /// 角色创建限制
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> UnlimitCharactor()
+        {
+            var sql = "Update limit_create_character set count = 0";
+            return await DbFrameworkScope.DTaiwan.Ado.ExecuteCommandAsync(sql) > 0;
+        }
+
+        /// <summary>
         /// 在线信息查询
         /// </summary>
         /// <param name="acName"></param>

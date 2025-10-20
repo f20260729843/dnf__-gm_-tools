@@ -223,6 +223,7 @@
                         CommandParameter="{Binding DataContext.CurMemberInfo.CharacNo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
                         Content="副职满级" />
                     <Button Command="{Binding DeleteCharacNameReleaseCommand}" Content="删除角色名释放" />
+                    <Button Command="{Binding UnlimitCharactorCommand}" Content="解除创建角色限制" />
                 </StackPanel>
             </GroupBox>
 
