@@ -281,6 +281,7 @@ namespace AY.DNF.GMTool.SuperTool.ViewModels
         public SuperToolPageViewModel()
         {
             RechargeTypes.AddRange(EnumHelper.EnumToList<RechargeType>());
+            PVPGradeTypes.AddRange(EnumHelper.EnumToList<PVPGradeType>());
 
             LoadJobs();
         }
