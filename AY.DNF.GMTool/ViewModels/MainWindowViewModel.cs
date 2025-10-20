@@ -61,7 +61,7 @@ namespace AY.DNF.GMTool.ViewModels
 
         #region 版本相关
 
-        private string _version = "1.2.20250114";
+        private string _version = "1.2.20251020";
         /// <summary>
         /// 显示的自定义版本号
         /// </summary>
